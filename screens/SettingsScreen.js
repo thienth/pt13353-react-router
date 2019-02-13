@@ -49,7 +49,7 @@ export default class SettingsScreen extends React.Component {
     firebaseConf.database().ref().update(updates);
     alert('Tạo mới bài viết thành công!');
     this.setState({
-      name: '',
+      title: '',
       category: 0,
       image: '',
       short_desc: '',
