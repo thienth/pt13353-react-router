@@ -1,7 +1,7 @@
 import React from 'react';
 import {ScrollView, Text, TextInput, StyleSheet,
         Picker, TouchableOpacity} from 'react-native';
-
+import firebaseConf from '../helpers/firebase';
 export default class SettingsScreen extends React.Component {
   static navigationOptions = {
     title: 'Thêm bài viết',
@@ -15,25 +15,47 @@ export default class SettingsScreen extends React.Component {
       image: "",
       short_desc: "",
       content: "",
-      listCates: [
-        {
-          key: 1,
-          name: "Thể thao"
-        },
-        {
-          key: 2,
-          name: "Giáo dục"
-        },
-        {
-          key: 3,
-          name: "Sức khỏe"
-        },
-        {
-          key: 4,
-          name: "làm đẹp"
-        },
-      ]
+      listCates: []
     }
+  }
+
+  componentDidMount = () => {
+    var that = this;
+    firebaseConf.database().ref('categories/').once('value', function (snapshot) {
+      let cates = [];
+      snapshot.forEach((child) => {
+        let item = {
+          key: child.key,
+          data: child.val()
+        }
+        cates.push(item);
+      });
+      that.setState({listCates: cates});
+    });
+  }
+  
+  submitPost = () => {
+    let data = {
+      name: this.state.title,
+      category: this.state.category,
+      image: this.state.image,
+      short_desc: this.state.short_desc,
+      content: this.state.content
+    };
+
+    var newPostKey = firebaseConf.database().ref().child('posts').push().key;
+    var updates = {};
+    updates['/posts/' + newPostKey] = data;
+    firebaseConf.database().ref().update(updates);
+    alert('Tạo mới bài viết thành công!');
+    this.setState({
+      name: '',
+      category: 0,
+      image: '',
+      short_desc: '',
+      content: ''
+    });
+
   }
 
   render() {
@@ -42,29 +64,36 @@ export default class SettingsScreen extends React.Component {
         <Text style={styles.label}>Tiêu đề bài viết</Text>
         <TextInput 
           style={styles.txtInput}
-          onChange={(txt) => {this.setState({title: txt})}} />
+          defaultValue={this.state.title}
+          onChangeText={txt => {this.setState({title: txt})}} />
+          
         <Text style={styles.label}>Danh mục</Text>
         <Picker selectedValue={this.state.category}
             onValueChange={(val) => {this.setState({category: val})}}>
           {this.state.listCates.map((item) => 
-            <Picker.Item key={item.key} label={item.name} value={item.key}/>  
+            <Picker.Item key={item.key} label={item.data.name} value={item.key}/>  
           )}
         </Picker>
         <Text style={styles.label}>Đường dẫn ảnh</Text>
         <TextInput 
           style={styles.txtInput}
-          onChange={(txt) => {this.setState({image: txt})}} />
+          defaultValue={this.state.image}
+          onChangeText={(txt) => {this.setState({image: txt})}} />
         <Text style={styles.label}>Mô tả ngắn</Text>
         <TextInput 
           style={[styles.txtInput, styles.txtarea]}
           multiline={true}
-          onChange={(txt) => {this.setState({short_desc: txt})}} />
+          defaultValue={this.state.short_desc}
+          onChangeText={(txt) => {this.setState({short_desc: txt})}} />
         <Text style={styles.label}>Nội dung bài viêt</Text>
         <TextInput 
           style={[styles.txtInput, styles.txtarea]}
           multiline={true}
-          onChange={(txt) => {this.setState({content: txt})}} />
-        <TouchableOpacity style={styles.btn}>
+          defaultValue={this.state.content}
+          onChangeText={(txt) => {this.setState({content: txt})}} />
+        <TouchableOpacity 
+          onPress={this.submitPost}
+          style={styles.btn}>
           <Text style={styles.btnTxt}>Lưu</Text>
         </TouchableOpacity>
       </ScrollView>
