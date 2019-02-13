@@ -32,7 +32,7 @@ const LinksStack = createStackNavigator({
 });
 
 LinksStack.navigationOptions = {
-  tabBarLabel: 'Thienth',
+  tabBarLabel: 'Thêm bài viết',
   tabBarIcon: ({ focused }) => (
     <TabBarIcon
       focused={focused}
