@@ -17,6 +17,7 @@ export default class HomeScreen extends React.Component {
     super(props);
     this.getListPosts = this.getListPosts.bind(this);
     this.removePost = this.removePost.bind(this);
+    this.updatePost = this.updatePost.bind(this);
     this.state ={
       posts: [],
       modalVisible: false,
@@ -61,22 +62,10 @@ export default class HomeScreen extends React.Component {
     alert('Xóa bài viết thành công!');
   }
 
-  // const {navigate} = this.props.navigation;
-    // return (
-    //   <View style={styles.container}>
-    //     {this.state.posts.map(row => 
-
-    //         <View key={row.key}>
-    //           <TouchableOpacity
-    //             onPress={() => navigate('Detail', {data: row})}  
-    //           >
-    //             <Image source={{uri: row.data.image}} style={{width: 100, height: 100}}/>
-    //             <Text>{row.data.name}</Text>
-    //           </TouchableOpacity>
-    //         </View>
-    //       )}
-    //   </View>
-
+  updatePost(data){
+    // console.log(data);
+    this.props.navigation.navigate('UpdatePost', {post: data});
+  }
   render() {
     
       return (
@@ -89,6 +78,12 @@ export default class HomeScreen extends React.Component {
                     this.removePost(po.key);
                   }}>
                   <Text style={styles.removeBtnLabel}>Xóa</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.removeBtn}
+                  onPress={() => {
+                    this.updatePost(po);
+                  }}>
+                  <Text style={[{width: 70}, styles.removeBtnLabel ]}>Cập nhật</Text>
                 </TouchableOpacity>
               </View>
             )}
