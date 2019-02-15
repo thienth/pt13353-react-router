@@ -15,11 +15,12 @@ import firebaseConf from '../helpers/firebase';
 export default class HomeScreen extends React.Component {
   constructor(props){
     super(props);
-    this.getListPosts = this.getListPosts.bind(this)
+    this.getListPosts = this.getListPosts.bind(this);
+    this.removePost = this.removePost.bind(this);
     this.state ={
       posts: [],
       modalVisible: false,
-      selectedPost: null
+      selectedPost: null,
     }
   }
 
@@ -40,7 +41,7 @@ export default class HomeScreen extends React.Component {
 
   getListPosts(){
     var that = this;
-    firebaseConf.database().ref('posts/').once('value', function (snapshot) {
+    firebaseConf.database().ref('posts/').on('value', function (snapshot) {
       let posts = [];
       snapshot.forEach((child) => {
 
@@ -52,8 +53,13 @@ export default class HomeScreen extends React.Component {
       });
       
       that.setState({posts});
-  });
-}
+    });
+  }
+
+  removePost(postKey){
+    firebaseConf.database().ref(`posts/${postKey}`).remove();
+    alert('Xóa bài viết thành công!');
+  }
 
   // const {navigate} = this.props.navigation;
     // return (
@@ -74,7 +80,18 @@ export default class HomeScreen extends React.Component {
   render() {
     
       return (
-        <View style={{marginTop: 20}}>
+        <View style={{marginTop: 20, marginLeft: 5, marginRight: 5}}>
+            {this.state.posts.map((po) => 
+              <View key={po.key}>
+                <Text style={styles.postTitle}>{po.data.name}</Text>
+                <TouchableOpacity style={styles.removeBtn}
+                  onPress={() => {
+                    this.removePost(po.key);
+                  }}>
+                  <Text style={styles.removeBtnLabel}>Xóa</Text>
+                </TouchableOpacity>
+              </View>
+            )}
               <Modal
               animationType="slide"
               transparent={false}
@@ -119,5 +136,22 @@ const styles = StyleSheet.create({
     marginTop: 20,
     flex: 1,
     backgroundColor: '#fff',
+  },
+  postTitle:{
+    fontSize: 25,
+    color: '#EEA43B',
+    marginTop: 20,
+    fontWeight: 'bold'
+  },
+  removeBtn:{
+    width: 40,
+    height: 30,
+    backgroundColor: 'green',
+    paddingLeft: 5,
+    paddingRight: 5
+  },
+  removeBtnLabel:{
+    lineHeight: 30,
+    color: '#fff'
   }
 });
